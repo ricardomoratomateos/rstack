@@ -55,6 +55,7 @@ This rule exists because it was broken twice in the session that gave rise to th
 - Proposing a fix before having traced the full data flow — you're guessing.
 - Trusting a subagent's (or your own) code reading without verifying it against the real case — a piece that "in theory" fits can depend on data that doesn't exist in production (this happened with `RulesRepository`: it depended on `CountryRules` rules that no longer existed for the real account).
 - Doing a find-and-replace or sed over a shared file to isolate an experiment, without scoping it to your exact block — check `git diff --stat` after any bulk edit: if it touches more lines/tests than expected, revert and redo it scoped.
+- Reaching to delete/consolidate shared code as the first idea, before checking whether a localized fix would do — if you haven't verified who else calls it, that's a guess dressed up as elegance.
 
 **Checkpoint — STOP.** Report the confirmed root cause with its evidence (the RED test output, instrumented) and ask the user explicitly whether to proceed to Phase 4. Do not start implementing while waiting for the answer.
 
@@ -64,7 +65,11 @@ This rule exists because it was broken twice in the session that gave rise to th
 
 Only with a confirmed root cause (Phase 3 with evidence, not suspicion).
 
-1. **Minimal fix**: the smallest change that eliminates the real cause. No adjacent refactors.
+1. **Minimal fix — and when more than one approach would work, prefer the one least likely to break something if you're wrong.** In order:
+   - A **localized fix** scoped to exactly where the bug lives, with its regression test — the default choice when you can't be sure who else depends on the shared code nearby.
+   - A **new, small, isolated piece**, if the localized fix would mean reaching into logic you don't fully understand — more code than a localized fix, but it can't break something else you haven't checked.
+   - Only **consolidate, delete, or add a guard to the shared code itself** once you've actually checked every place that calls it — this is the strongest fix (makes the bug class impossible), but if you missed a caller, you break more than you fix.
+   Default to the first two. Only touch the shared code once you've actually verified who uses it — not as the first idea that comes to mind. No adjacent refactors beyond what this requires.
 2. **Does the 3-subagent adversarial pattern apply?** Only if one of these conditions holds — otherwise implement it yourself directly:
    - The fix touches a function/class shared by more than one caller.
    - Your first fix attempt broke an existing test.
