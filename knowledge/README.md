@@ -1,4 +1,4 @@
-# ricardo-knowledge
+# knowledge
 
 Ricardo's engineering principles, distilled as context documents for AI agents and as personal reference.
 
@@ -11,9 +11,9 @@ Each document is a self-contained "principles charter" for one area of software 
 In the project's `CLAUDE.md` (or equivalent agent context file), import the relevant documents:
 
 ```markdown
-@~/Projects/rstack/knowledge/00-manifesto.md
-@~/Projects/rstack/knowledge/domain/value-objects.md
-@~/Projects/rstack/knowledge/databases/mongodb.md
+@<path-to-rstack>/knowledge/00-manifesto.md
+@<path-to-rstack>/knowledge/domain/value-objects.md
+@<path-to-rstack>/knowledge/databases/mongodb.md
 ```
 
 Import only what applies to the project. `00-manifesto.md` applies always.

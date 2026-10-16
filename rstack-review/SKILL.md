@@ -1,17 +1,25 @@
 ---
 name: rstack-review
-description: Review a PR against Ricardo's engineering principles (ricardo-knowledge repo) AND against every ADR of the current project. Use whenever the user asks to review a PR, pastes a PR URL/number, or says "review this PR", "run the review", "pr-review". Always re-reads the knowledge docs and ADRs at invocation time — they change frequently, never rely on remembered content.
+description: Review a PR against Ricardo's engineering principles (the `knowledge/` folder of this repo) AND against every ADR of the current project. Use whenever the user asks to review a PR, pastes a PR URL/number, or says "review this PR", "run the review", "pr-review". Always re-reads the knowledge docs and ADRs at invocation time — they change frequently, never rely on remembered content.
 ---
 
-# PR Review against ricardo-knowledge and the project's ADRs
+# PR Review against the knowledge base and the project's ADRs
 
-Review a PR using **two sets** as criteria: the documents under `~/Projects/rstack/knowledge` and ALL of the current project's ADRs. Both are read in full, always, with no filtering by whether they "sound relevant" to the PR — a date-handling PR doesn't always say "date" in the title, and an ADR that looks unrelated is exactly the one that slips through.
+Review a PR using **two sets** as criteria: the documents under `KNOWLEDGE` and ALL of the current project's ADRs. Both are read in full, always, with no filtering by whether they "sound relevant" to the PR — a date-handling PR doesn't always say "date" in the title, and an ADR that looks unrelated is exactly the one that slips through.
 
-**Hard rule**: no filtering by topic. Neither ricardo-knowledge nor the ADRs get selected by perceived relevance — they are all read, in full, one by one. The cost of reading too much is always smaller than the cost of an incomplete review.
+**Hard rule**: no filtering by topic. Neither the knowledge base nor the ADRs get selected by perceived relevance — they are all read, in full, one by one. The cost of reading too much is always smaller than the cost of an incomplete review.
 
-## Step 1 — Enumerate and read ALL of ricardo-knowledge (mandatory, always, no exception)
+## Locating the knowledge base
 
-1. `find ~/Projects/rstack/knowledge -iname "*.md"` — count the real total number of documents. Don't trust the `README.md` index alone: it can be stale.
+The knowledge base is the `knowledge/` folder of this repo, next to the skill folders. Resolve its absolute path once, before anything else, and call it `KNOWLEDGE`:
+
+1. If the environment variable `RSTACK_KNOWLEDGE` is set, use it.
+2. Otherwise resolve it from this skill's base directory (the harness prints it when the skill loads), following symlinks: `KNOWLEDGE="$(cd -P "<this skill's base directory>/.." && pwd -P)/knowledge"`.
+3. If that folder does not exist, STOP and ask the user where `knowledge/` is. Do not continue without it, and do not substitute another set of documents.
+
+## Step 1 — Enumerate and read ALL of the knowledge base (mandatory, always, no exception)
+
+1. `find "$KNOWLEDGE" -iname "*.md"` — count the real total number of documents. Don't trust the `README.md` index alone: it can be stale.
 2. Read every one of those documents **in full**. There's no "whichever applies" shortcut — it's the complete set.
 3. Keep the count (N) for the Step 5 output.
 
@@ -29,23 +37,23 @@ Review a PR using **two sets** as criteria: the documents under `~/Projects/rsta
 
 ## Step 4 — Review
 
-Evaluate the diff against **both** sets you read (ricardo-knowledge + the project's ADRs). For each finding:
+Evaluate the diff against **both** sets you read (the knowledge base + the project's ADRs). For each finding:
 
 - Cite the exact source and the specific rule being violated (e.g. "async-workers.md rule 7 — idempotent jobs", or "ADR-007-derived-values — derived values must be computed on demand, not persisted").
 - Point to file and line (`path/file.ts:123`).
 - Distinguish severity: **blocking** (violates a hard rule / explicit anti-pattern, or contradicts an ADR), **improvement** (a preferred pattern is documented), **note** (minor observation).
 - Also acknowledge what the PR does well with respect to the principles — briefly.
 
-Don't invent rules that aren't in the documents: if something looks wrong to you but no document/ADR covers it, label it "opinion, not covered by ricardo-knowledge or any ADR" and suggest whether it's worth documenting.
+Don't invent rules that aren't in the documents: if something looks wrong to you but no document/ADR covers it, label it "opinion, not covered by the knowledge base or any ADR" and suggest whether it's worth documenting.
 
 ## Step 5 — Output
 
 Short, plain format (Ricardo prefers concise answers):
 
-1. First line: coverage count, e.g. "ricardo-knowledge: 24/24 reviewed · ADRs: 7/7 reviewed" — so it's visible that no sampling happened.
+1. First line: coverage count, e.g. "knowledge base: 24/24 reviewed · ADRs: 7/7 reviewed" — so it's visible that no sampling happened.
 2. One-line verdict (approve / changes needed).
 3. List of findings ordered by severity, each in 1-2 lines with its citation (document or ADR).
-4. If any finding revealed a gap in ricardo-knowledge or in the ADRs, a final line suggesting the doc/rule to add.
+4. If any finding revealed a gap in the knowledge base or in the ADRs, a final line suggesting the doc/rule to add.
 
 Don't publish the review on GitHub unless the user explicitly asks for it.
 

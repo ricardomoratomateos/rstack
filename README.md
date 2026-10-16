@@ -4,16 +4,67 @@ A small, personal pack of Claude Code skills, in the same spirit as [gstack](htt
 
 ## Skills
 
-- **[rstack-investigate](rstack-investigate/SKILL.md)** — systematic root-cause debugging with hard gates against guessing. Iron Law: no fix without a bug reproduced with real data.
-- **[rstack-plan](rstack-plan/SKILL.md)** — propose-and-wait planning for new features. Listen, confirm understanding, survey for reusable code, negotiate the plan question by question with incremental diagrams, then a hard approval gate. Never implements anything itself.
-- **[rstack-review](rstack-review/SKILL.md)** — PR review against `knowledge/` and every ADR of the current project, exhaustively (no topic sampling).
+| Skill | Use it when | What it does |
+|---|---|---|
+| [rstack-investigate](rstack-investigate/SKILL.md) | You have a bug report and want the cause, not a guess | Root-cause debugging in phases, with a stop after each one. Iron Law: no fix without the bug reproduced, as a test in the repo, with real data. |
+| [rstack-plan](rstack-plan/SKILL.md) | You describe a new feature, not a bug | Propose-and-wait planning: listen, confirm, look for reusable code, negotiate the plan one question at a time, then a hard approval gate. It never implements anything. |
+| [rstack-review](rstack-review/SKILL.md) | You want a PR reviewed | Review against every document in `knowledge/` and every ADR of the current project, exhaustively, with an explicit N/N coverage count. |
+
+## Install
+
+Requires [Claude Code](https://claude.com/claude-code). `rstack-review` also needs the [GitHub CLI](https://cli.github.com) (`gh`) to read PRs.
+
+```bash
+git clone https://github.com/ricardomoratomateos/rstack.git ~/rstack   # any location works
+for s in rstack-investigate rstack-plan rstack-review; do
+  ln -s ~/rstack/$s ~/.claude/skills/$s
+done
+```
+
+Symlinks matter: the skills find `knowledge/` from the real location of their folder, one level up. If you copy the folders instead of linking them, point to the knowledge base explicitly:
+
+```bash
+export RSTACK_KNOWLEDGE=~/rstack/knowledge
+```
+
+If the skills cannot find `knowledge/`, they stop and ask you where it is.
+
+### Optional: diagrams in `rstack-plan`
+
+`rstack-plan` can draw workflow and sequence diagrams with [archify](https://github.com/tt-a1i/archify), a separate open-source skill (MIT):
+
+```bash
+npx skills add tt-a1i/archify -g
+```
+
+It is optional. If archify is not listed among your available skills, the plan says so and continues in text only.
+
+## Example
+
+An illustrative, abbreviated session (the names are made up):
+
+```text
+> /rstack-investigate Some checkout orders arrive without their discount (ticket #123)
+
+Phase 1: Root cause investigation
+  Symptom:     as reported in the ticket
+  Reproduced:  tests/Checkout/DiscountTest.php fails (RED), built with the real payload from the ticket
+  Hypothesis:  the discount is dropped when the cart is edited after payment starts
+Checkpoint: proceed to Phase 2?
+```
+
+The skill stops there and waits. Each phase ends the same way: it reports what it found and asks before moving on.
 
 ## knowledge/
 
-A personal engineering-principles knowledge base (formerly the standalone `ricardo-knowledge` repo, folded in here via `git subtree`). Both skills read it directly from `~/Projects/rstack/knowledge`.
+A personal engineering-principles knowledge base: one document per area (architecture, databases, testing, domain modelling). `rstack-review` and `rstack-investigate` read it in full, and you can also import single documents into any project's `CLAUDE.md`. See [knowledge/README.md](knowledge/README.md) for the index.
 
 ## Design principles
 
-- Each skill is self-contained — no shared "philosophy" doc referenced from multiple skills. Some duplication across skills is preferred over a cross-reference that's easy to skip.
+- Each skill is self-contained: no shared "philosophy" doc referenced from multiple skills. Some duplication across skills is preferred over a cross-reference that is easy to skip.
 - Gates are phrased as hard stops ("do not do X until Y"), not soft advice ("you should probably do X").
-- Any step that says "read everything" or "check all of X" is delegated to a fresh subagent with an explicit N/N completion count — a model already loaded with context tends to turn "review everything" into "skim what looks relevant."
+- Any step that says "read everything" or "check all of X" is delegated to a fresh subagent with an explicit N/N completion count: a model already loaded with context tends to turn "review everything" into "skim what looks relevant."
+
+## License
+
+[MIT](LICENSE)

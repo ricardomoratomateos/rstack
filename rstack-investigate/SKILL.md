@@ -112,17 +112,26 @@ During the investigation (especially if subagents were used in Phase 4), related
 
 ---
 
-## Phase 7 — Audit against ADRs and ricardo-knowledge (mandatory, no exceptions)
+## Phase 7 — Audit against ADRs and the knowledge base (mandatory, no exceptions)
 
-This phase is not optional, nor proportional to the size of the fix — it's as non-negotiable as the Iron Law. Do not do it yourself inline: delegate it to a fresh subagent (with none of your prior context), model `sonnet`, with exactly this task and nothing else:
+### Locating the knowledge base
+
+The knowledge base is the `knowledge/` folder of this repo, next to the skill folders. Resolve its absolute path once, before anything else, and call it `KNOWLEDGE`:
+
+1. If the environment variable `RSTACK_KNOWLEDGE` is set, use it.
+2. Otherwise resolve it from this skill's base directory (the harness prints it when the skill loads), following symlinks: `KNOWLEDGE="$(cd -P "<this skill's base directory>/.." && pwd -P)/knowledge"`.
+3. If that folder does not exist, STOP and ask the user where `knowledge/` is. Do not continue without it, and do not substitute another set of documents.
+
+
+This phase is not optional, nor proportional to the size of the fix — it's as non-negotiable as the Iron Law. Before delegating, resolve `KNOWLEDGE` (see above) and pass its absolute path in the subagent prompt: a fresh subagent has no context and cannot find it on its own. Do not do it yourself inline: delegate it to a fresh subagent (with none of your prior context), model `sonnet`, with exactly this task and nothing else:
 
 > Given this diff/fix: [paste diff or description + touched files]
 >
 > 1. Enumerate with `find`/`ls` ALL ADR files in the repo (look under `.ai/ADR/`, `docs/adr/`, `.context-hints`, or wherever the project's CLAUDE.md points). Count the total.
-> 2. Enumerate ALL documents under `~/Projects/rstack/knowledge` (use its `README.md` as an index, but verify with `find` that the index isn't stale). Count the total.
+> 2. Enumerate ALL documents under `{KNOWLEDGE}` (substitute the absolute path you resolved; use its `README.md` as an index, but verify with `find` that the index isn't stale). Count the total.
 > 3. Read every one of both sets **in full, one by one** — do not sample, do not read only "the ones that sound relevant by title."
 > 4. For each one, state explicitly whether the proposed fix complies with it, contradicts it, or doesn't apply.
-> 5. Report with an explicit count: "N/N ADRs reviewed, M/M ricardo-knowledge docs reviewed" + a list of any conflicts found, with an exact citation (document + rule).
+> 5. Report with an explicit count: "N/N ADRs reviewed, M/M knowledge docs reviewed" + a list of any conflicts found, with an exact citation (document + rule).
 
 Why a fresh subagent and not you: a model already loaded with context and eager to close out the task tends to turn "review" into "read what sounds relevant and skip the rest" — the explicit N/N count in a narrow, fresh task is what makes this verifiable instead of a promise.
 
