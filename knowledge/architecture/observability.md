@@ -24,7 +24,7 @@ Monitoring tells us whether known conditions crossed thresholds. Observability g
 
 ## 3. Tag everything with the tenant
 
-**Principle**: Every trace and every log line carries the tenant ID. For HTTP requests it comes from the session/token context; for async messages, the message itself exposes it (a one-method interface like `getAccountId()`), so background work is attributable to a customer with no session around.
+**Principle**: Every trace and every log line carries the tenant ID. For HTTP requests it comes from the session/token context; for async messages, the message itself exposes it (a one-method interface like `getTenantId()`), so background work is attributable to a customer with no session around.
 
 **Why**: "show me everything tenant X did/suffered" is the first question of every incident.
 
@@ -74,10 +74,10 @@ Do not log secrets, credentials, raw personal data, or entire provider payloads.
 - Projection lag and import progress/failure rate.
 
 **Business outcomes**:
-- Invoices audited.
-- Overcharges detected.
-- Claims opened and resolved.
-- Money identified and recovered.
+- Orders processed.
+- Rejections detected.
+- Refunds opened and resolved.
+- Value processed and reconciled.
 - Success, partial-success, compensation, and manual-review rates.
 
 Technical success without a business outcome is not enough. A healthy queue processing zero recoverable claims can still indicate a product/data problem.
@@ -96,6 +96,6 @@ Build Datadog dashboards/views for:
 - **Tenant/customer**: workload, lag, errors, quotas, and affected business operations.
 - **Provider**: request rate, concurrency, latency, 429/5xx, circuit state, retry/DLQ/reconciliation backlog.
 - **Operational health**: services, queues, databases, worker pools, oldest work, error budgets.
-- **Business results**: audited invoices, detected overcharges, claims, and recovered money.
+- **Business results**: orders processed, rejections detected, refunds resolved, and value reconciled.
 
 Monitors link to the relevant dashboard and logs/traces use the same bounded field names. One incident should be traceable from monitor → dashboard → process/entity → correlated logs/trace → durable audit state.

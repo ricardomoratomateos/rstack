@@ -25,8 +25,8 @@ The knowledge base is the `knowledge/` folder of this repo, next to the skill fo
 
 ## Step 2 — Enumerate and read ALL of the project's ADRs (mandatory, always, no exception)
 
-1. Look for the current repo's ADRs, trying the usual conventions — `find . -path "*/.ai/ADR/*.md"`, `docs/adr/`, `doc/adr/`, `adr/` — and whatever the repo's own CLAUDE.md/`.context-hints`/README points to if it uses a different one. Count the real total (M).
-2. Read every ADR **in full**, one by one — same as Step 1, with no filtering by whether the title "sounds" related to the PR. (Real example: a timezone/date-handling ADR doesn't have to be mentioned in the title of a PR touching recurring dates, due dates, or cron jobs — and that's exactly the kind that gets violated most by being skipped.)
+1. Look for the current repo's ADRs, trying the usual conventions — `find . -path "*/adr/*.md"`, `docs/adr/`, `doc/adr/`, `docs/decisions/` — and whatever the repo's own CLAUDE.md/README points to if it uses a different one. Count the real total (M).
+2. Read every ADR **in full**, one by one — same as Step 1, with no filtering by whether the title "sounds" related to the PR. (For example, a time-zone ADR doesn't have to be mentioned in the title of a PR that touches scheduled jobs or deadlines — and that's exactly the kind that gets violated most by being skipped.)
 3. Keep the count (M) for the Step 5 output.
 
 ## Step 3 — Get the PR diff
@@ -39,7 +39,7 @@ The knowledge base is the `knowledge/` folder of this repo, next to the skill fo
 
 Evaluate the diff against **both** sets you read (the knowledge base + the project's ADRs). For each finding:
 
-- Cite the exact source and the specific rule being violated (e.g. "async-workers.md rule 7 — idempotent jobs", or "ADR-007-derived-values — derived values must be computed on demand, not persisted").
+- Cite the exact source and the specific rule being violated (e.g. "async-workers.md rule 7 — idempotent jobs", or "ADR-003-time-zones — timestamps are stored in UTC").
 - Point to file and line (`path/file.ts:123`).
 - Distinguish severity: **blocking** (violates a hard rule / explicit anti-pattern, or contradicts an ADR), **improvement** (a preferred pattern is documented), **note** (minor observation).
 - Also acknowledge what the PR does well with respect to the principles — briefly.

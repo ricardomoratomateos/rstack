@@ -4,7 +4,7 @@ How to evolve a system without rewriting it, and without letting the old part ro
 
 ## 1. Parallel versions as sibling namespaces
 
-**Principle**: A new version of a flow lives as a sibling namespace (`Order/` and `Order/V3/`) with its own classes — never as version-ifs scattered through the old code. The old version's code is frozen: bug fixes only, no new features.
+**Principle**: A new version of a flow lives as a sibling namespace (`Order/` and `Order/V2/`) with its own classes — never as version-ifs scattered through the old code. The old version's code is frozen: bug fixes only, no new features.
 
 **Why**: Interleaved version branches make both versions untestable and unfinishable. Parallel trees keep the old one stable and let the new one be built with current standards.
 
@@ -16,7 +16,7 @@ How to evolve a system without rewriting it, and without letting the old part ro
 
 ## 3. The mapping layer as a rename anti-corruption layer
 
-**Principle**: Modern domain vocabulary over a legacy storage schema, with the translation confined to the persistence mapping (`accountId → acc`). The codebase reads clean; the data never migrates.
+**Principle**: Modern domain vocabulary over a legacy storage schema, with the translation confined to the persistence mapping (`customerId → cust`). The codebase reads clean; the data never migrates.
 
 ## 4. Bridge markers with an exit condition
 

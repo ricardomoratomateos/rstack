@@ -11,7 +11,7 @@ description: Systematic root-cause debugging with hard gates against guessing. U
 
 Reading code and reasoning about what "should" happen is not evidence. A hypothesis without confirmed reproduction is called a hypothesis — never "the cause," not in your own head and not in what you tell the user.
 
-This rule exists because it was broken twice in the session that gave rise to this skill: a root cause was proposed (invented business rules) without checking the account's real data, and then a whole fix (`RulesRepository`) was built from code reading alone, which turned out to be useless in production because the data it depended on (`CountryRules`) didn't exist for that account. Both times the user had to stop the model with real data it hadn't asked for.
+This rule exists because it was broken twice in the session that gave rise to this skill: a root cause was proposed (invented business rules) without checking the account's real data, and then a whole fix was built from code reading alone, which turned out to be useless in production because the data it depended on didn't exist for that account. Both times the user had to stop the model with real data it hadn't asked for.
 
 ---
 
@@ -21,7 +21,7 @@ This rule exists because it was broken twice in the session that gave rise to th
 2. **Trace the code**: from the symptom backwards. Before assuming two similar-looking functions/queries are interchangeable, read their call sites — the difference is usually in a caller's guard, scope, or transaction, not in the function itself.
 3. **`git log --oneline -20 -- <affected files>`**: is this a regression? What changed, and when? If a recent PR/commit touches the same area, read it before continuing.
 4. **Reproduce with REAL data, never invented — and do it as an automated test in the repo itself, not as a separate script.** If the project has a test suite (acceptance/integration/unit), the reproduction IS that test: build it now, with the real payload/data (production logs, DB), and run the suite to watch it fail (RED). Do not first write a throwaway script or REPL session "to understand," and only later — once you already have the root cause — write a separate test. It is the same artifact from the start. That test is what you'll use in Phase 3 to test each hypothesis, and it's what will end up being the regression test of Phase 4 — there are not two tests, there's one that goes from RED to GREEN. If the repo has no usable test infrastructure for this case, a script is your only option — say so explicitly, because then you won't have a real regression test in Phase 4 and that gap needs to be compensated some other way. If you can't reproduce it either as a test or as a script, go back to step 1 and gather more evidence; do not move to Phase 3 without reproduction.
-   **Prefer integration/acceptance level over unit-with-mocks.** If the project has both, pick the one that exercises the real dependency the bug lives in (real DB, real repositories) over a unit test that fakes/mocks that exact dependency — a mocked unit test can make a wrong fix look correct, which is exactly what almost shipped with `RulesRepository`: a unit test mocking the repository would have passed even though the real dependency (`CountryRules`) was empty in production. Only fall back to a unit test with mocks if the bug is genuinely inside pure logic with no external dependency involved.
+   **Prefer integration/acceptance level over unit-with-mocks.** If the project has both, pick the one that exercises the real dependency the bug lives in (real DB, real repositories) over a unit test that fakes/mocks that exact dependency — a mocked unit test can make a wrong fix look correct, which is exactly what almost shipped once: a unit test mocking the repository would have passed even though the real dependency was empty in production. Only fall back to a unit test with mocks if the bug is genuinely inside pure logic with no external dependency involved.
 5. Check whether similar investigations/fixes already happened in the same area (`git log`, project memory/ADRs). A recurring bug in the same spot is an architectural smell, not a coincidence.
 
 **Output of this phase**: a concrete, falsifiable root-cause hypothesis — not a vague "looks like a concurrency issue."
@@ -53,7 +53,7 @@ This rule exists because it was broken twice in the session that gave rise to th
 **Red flags — stop if you see any of these:**
 - "Quick fix for now" — there is no "for now," fix it properly or escalate.
 - Proposing a fix before having traced the full data flow — you're guessing.
-- Trusting a subagent's (or your own) code reading without verifying it against the real case — a piece that "in theory" fits can depend on data that doesn't exist in production (this happened with `RulesRepository`: it depended on `CountryRules` rules that no longer existed for the real account).
+- Trusting a subagent's (or your own) code reading without verifying it against the real case — a piece that "in theory" fits can depend on data that doesn't exist in production (this happened once: the fix depended on rules that no longer existed for the real account).
 - Doing a find-and-replace or sed over a shared file to isolate an experiment, without scoping it to your exact block — check `git diff --stat` after any bulk edit: if it touches more lines/tests than expected, revert and redo it scoped.
 - Reaching to delete/consolidate shared code as the first idea, before checking whether a localized fix would do — if you haven't verified who else calls it, that's a guess dressed up as elegance.
 
@@ -127,7 +127,7 @@ This phase is not optional, nor proportional to the size of the fix — it's as 
 
 > Given this diff/fix: [paste diff or description + touched files]
 >
-> 1. Enumerate with `find`/`ls` ALL ADR files in the repo (look under `.ai/ADR/`, `docs/adr/`, `.context-hints`, or wherever the project's CLAUDE.md points). Count the total.
+> 1. Enumerate with `find`/`ls` ALL ADR files in the repo (look under `docs/adr/`, `doc/adr/`, `adr/`, or wherever the project's CLAUDE.md points). Count the total.
 > 2. Enumerate ALL documents under `{KNOWLEDGE}` (substitute the absolute path you resolved; use its `README.md` as an index, but verify with `find` that the index isn't stale). Count the total.
 > 3. Read every one of both sets **in full, one by one** — do not sample, do not read only "the ones that sound relevant by title."
 > 4. For each one, state explicitly whether the proposed fix complies with it, contradicts it, or doesn't apply.

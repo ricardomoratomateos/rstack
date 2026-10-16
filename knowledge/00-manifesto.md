@@ -127,8 +127,8 @@ Ricardo has more than ten years of software-engineering experience. Do not expla
 Prefer examples grounded in his real context when they fit:
 
 - PHP/Symfony backend systems using DDD, CQRS, TDD, events, and asynchronous workers.
-- Shopify ↔ ERP integrations, especially `orders/create`, `orders/paid`, and `orders/updated` webhooks.
-- Coordination between hooks, orders, inventory, invoices, partial refunds, and internal versus external state.
+- Ecommerce ↔ ERP integrations built on webhooks.
+- Coordination between webhooks, orders and invoices, and internal versus external state.
 - React, TypeScript/JavaScript, plus experience with Node.js and Python/FastAPI.
 - MongoDB as the strongest database background, with working PostgreSQL/Supabase knowledge.
 - Datadog logs, monitors, alerts, dashboards, and distributed-flow investigation.
