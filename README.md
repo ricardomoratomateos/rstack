@@ -5,6 +5,7 @@ A small, personal pack of Claude Code skills, in the same spirit as [gstack](htt
 ## Skills
 
 - **[rstack-investigate](rstack-investigate/SKILL.md)** — systematic root-cause debugging with hard gates against guessing. Iron Law: no fix without a bug reproduced with real data.
+- **[rstack-plan](rstack-plan/SKILL.md)** — propose-and-wait planning for new features. Listen, confirm understanding, survey for reusable code, negotiate the plan question by question with incremental diagrams, then a hard approval gate. Never implements anything itself.
 - **[rstack-review](rstack-review/SKILL.md)** — PR review against `knowledge/` and every ADR of the current project, exhaustively (no topic sampling).
 
 ## knowledge/
