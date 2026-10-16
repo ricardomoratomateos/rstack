@@ -1,0 +1,77 @@
+# Example app profile. Copy to .qa-workspace/profile/profile.yml in the repo under test
+# and fill it in. Everything app-specific lives here; the skills stay generic.
+# The example uses a fictional task-management app.
+
+app: taskly
+
+env:
+  # The environment the skills open by default when the caller names none.
+  defaultUrl: http://localhost:5173/
+  # Hosts the run is allowed to touch. Anything not matching is refused.
+  allowedHosts:
+    - localhost
+    - 127.0.0.1
+  # Never run against these — the run stops before opening a browser.
+  forbiddenHosts:
+    - taskly.example.com
+  productionHosts:
+    - taskly.example.com
+  # How to turn a host into a session slug (see qa-login step 3).
+  slugRule: "localhost:* -> local-dev; branch-<name>.host -> branch-<name>; else host with dots as dashes"
+
+auth:
+  loginPath: /login
+  credentials:
+    # NAMES of the variables in .qa-workspace/.env — never the values.
+    userSecret: APP_TEST_USER
+    passSecret: APP_TEST_PASS
+  # Optional explicit selectors; omit to let qa-login find the fields heuristically.
+  form:
+    emailSelector: null
+    passwordSelector: null
+    submitSelector: null
+  success:
+    - "URL moves away from /login"
+  failure:
+    - "Invalid credentials"
+  sso:
+    # If the login page shows only these, the run comes out sso-only (Pending, not failed).
+    detectText: []
+
+repo:
+  baseBranch: main
+  # Where qa-prepare greps for the real endpoint. Point at the functional/acceptance
+  # tests — they call the real path with the auth header already wired.
+  functionalTestsPath: test/functional
+  testFileGlob: "*.test.ts"
+  # Real request fixtures to start seeding payloads from, if any.
+  fixturesPath: ""
+
+api:
+  # The API origin, when it differs from the web app (a separate port/subdomain in dev).
+  # qa-prepare seeds against THIS, not against the web baseUrl. Omit if same-origin.
+  baseUrl: http://localhost:3000
+  # The auth mechanisms the app has. They are NOT interchangeable: qa-prepare reads the
+  # controller to decide which one an endpoint needs.
+  mechanisms:
+    - id: session-jwt
+      header: "Authorization: Bearer {accessToken}"
+      obtain: "POST /auth/login with {email,password} returns accessToken"
+      signal: "route registered behind the authenticate preHandler / middleware"
+    - id: api-key
+      header: "X-Api-Key: {key}"
+      secret: APP_API_KEY          # name of the variable in .env
+      signal: "routes that read the key header instead of a session"
+
+seed:
+  # Everything the run creates is named with this, so it is never confused with real data.
+  markerPattern: "QA {ref} Test"
+
+limits:
+  maxFlows: 5
+
+quirks:
+  # App-specific traps qa-execute should know about.
+  iframes: []          # sections rendered inside an iframe, and how their title varies
+  waits: []            # known slow spots to wait on before concluding something failed
+  dialogs: []          # confirm/alert dialogs to accept before capturing

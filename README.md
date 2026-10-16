@@ -9,19 +9,20 @@ A small, personal pack of Claude Code skills, in the same spirit as [gstack](htt
 | [rstack-investigate](rstack-investigate/SKILL.md) | You have a bug report and want the cause, not a guess | Root-cause debugging in phases, with a stop after each one. Iron Law: no fix without the bug reproduced, as a test in the repo, with real data. |
 | [rstack-plan](rstack-plan/SKILL.md) | You describe a new feature, not a bug | Propose-and-wait planning: listen, confirm, look for reusable code, negotiate the plan one question at a time, then a hard approval gate. It never implements anything. |
 | [rstack-review](rstack-review/SKILL.md) | You want a PR reviewed | Review against every document in `knowledge/` and every ADR of the current project, exhaustively, with an explicit N/N coverage count. |
+| [rstack-qa-review](rstack-qa-review/SKILL.md) | You want a PR checked in the browser | Autonomous QA in four stages (login, prepare, execute, memory) that read the PR, seed real data through the real API, drive the flows with Playwright, capture evidence and deliver a `go` / `warn` / `no` verdict. See [how it works](rstack-qa-review/README.md). |
 
 ## Install
 
-Requires [Claude Code](https://claude.com/claude-code). `rstack-review` also needs the [GitHub CLI](https://cli.github.com) (`gh`) to read PRs.
+Requires [Claude Code](https://claude.com/claude-code). `rstack-review` and `rstack-qa-review` also need the [GitHub CLI](https://cli.github.com) (`gh`) to read PRs. `rstack-qa-review` installs the Playwright CLI itself on its first run.
 
 ```bash
-git clone https://github.com/ricardomoratomateos/rstack.git ~/rstack   # any location works
-for s in rstack-investigate rstack-plan rstack-review; do
-  ln -s ~/rstack/$s ~/.claude/skills/$s
+git clone https://github.com/ricardomoratomateos/rstack.git ~/rstack   # or anywhere else, then adjust the paths below
+for s in ~/rstack/rstack-*; do
+  ln -s "$s" ~/.claude/skills/"$(basename "$s")"
 done
 ```
 
-Symlinks matter: the skills find `knowledge/` from the real location of their folder, one level up. If you copy the folders instead of linking them, point to the knowledge base explicitly:
+Symlinks matter for `rstack-investigate` and `rstack-review`: they find `knowledge/` from the real location of their folder, one level up. `rstack-plan` and `rstack-qa-review` do not need it. If you copy the folders instead of linking them, point to the knowledge base explicitly:
 
 ```bash
 export RSTACK_KNOWLEDGE=~/rstack/knowledge
