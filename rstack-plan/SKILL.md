@@ -11,9 +11,9 @@ description: Propose-and-wait planning for new features. Use before starting any
 
 This skill exists because of a very concrete failure: asked to think through a new skill together, the model instead jumped straight to producing a finished diagram of its own design, without first confirming it had understood the request. The fix wasn't "think harder" — it was a structure that makes jumping ahead impossible: understanding gets confirmed before anything else happens, and the plan gets built question by question with the user, not delivered as a finished monologue.
 
-This skill's job ends at an approved plan, persisted in the repo. It never writes implementation code itself — what happens after approval is separate, ordinary work (or `rstack-investigate`, if what gets approved is a bugfix).
+This skill's job ends at an approved plan, persisted in the brain. It never writes implementation code itself — what happens after approval is separate, ordinary work (or `rstack-investigate`, if what gets approved is a bugfix).
 
-**The plan doesn't wait for the end to exist as a file.** `specs/<feature-slug>/spec.md` and `specs/<feature-slug>/plan.md` are written and updated progressively, phase by phase — never produced in one shot once everything is already decided. A file that only gets written after the fact is just the chat transcript with extra steps.
+**The plan doesn't wait for the end to exist as a file.** `$BRAIN/<project-folder>/<feature-slug>/spec.md` and `.../plan.md` (see "Locating the brain" in Phase 2) are written and updated progressively, phase by phase — never produced in one shot once everything is already decided. A file that only gets written after the fact is just the chat transcript with extra steps.
 
 ---
 
@@ -37,7 +37,15 @@ Concrete example: asked to build a new kind of plugin, the right output of this 
 
 **Checkpoint — STOP.** Report what you found (reusable pieces first, patterns second) and ask the user explicitly whether to proceed to Phase 3, or to redirect the approach now that this exists.
 
-**Once Phase 1 and this phase are both confirmed**, write `specs/<feature-slug>/spec.md` (WHAT and WHY — not HOW): the restated request from Phase 1 and the reuse findings from this phase. Use a short kebab-case slug from the feature name agreed in Phase 1 — don't ask the user to name it unless it's genuinely ambiguous. This is the spec, not the plan; it doesn't contain implementation decisions, because none exist yet.
+### Locating the brain
+
+Every spec and plan lives in the brain, never in the target repo. The brain is `brain/`, a sibling folder of this repo (next to `knowledge/`), gitignored there on purpose — it survives a deleted or orphaned worktree, because it never lived inside one.
+
+1. Resolve its absolute path once, the same way as `KNOWLEDGE` (see Phase 3): `BRAIN="$(cd -P "<this skill's base directory>/.." && pwd -P)/brain"`.
+2. Create it if missing (`mkdir -p "$BRAIN"`) — this is local, personal storage, not something to ask the user about.
+3. Every ticket gets its own `$BRAIN/<project-folder>/<feature-slug>/`, where `<project-folder>` is the basename of the target repo's root (`git rev-parse --show-toplevel`) — so specs from different projects never collide.
+
+**Once Phase 1 and this phase are both confirmed**, write `$BRAIN/<project-folder>/<feature-slug>/spec.md` (WHAT and WHY — not HOW): the restated request from Phase 1 and the reuse findings from this phase. Use a short kebab-case slug from the feature name agreed in Phase 1 — don't ask the user to name it unless it's genuinely ambiguous. This is the spec, not the plan; it doesn't contain implementation decisions, because none exist yet.
 
 ---
 
@@ -57,7 +65,7 @@ If the feature also has project-specific ADRs (same discovery convention as `rst
 
 **Do not write a complete plan document and hand it over.** Ask questions one at a time about what Phase 2 left open, and build the plan together with the user's answers. A plan assembled from a single monologue is a decision made alone with a rubber-stamp request attached — that's exactly what this skill exists to prevent.
 
-**`specs/<feature-slug>/plan.md` grows with the conversation, not after it.** After each question gets an answer, append or update the corresponding section of `plan.md` immediately — don't hold the decisions in your head until the end and write the file in one pass once everything is settled. The file at any point in the middle of Phase 3 should be an honest reflection of what's decided so far, including sections still marked open.
+**`$BRAIN/<project-folder>/<feature-slug>/plan.md` grows with the conversation, not after it.** After each question gets an answer, append or update the corresponding section of `plan.md` immediately — don't hold the decisions in your head until the end and write the file in one pass once everything is settled. The file at any point in the middle of Phase 3 should be an honest reflection of what's decided so far, including sections still marked open.
 
 **Diagrams, when the feature has a flow or multiple actors:**
 
@@ -84,7 +92,7 @@ Present the closed plan: `plan.md` as it now stands (already up to date from Pha
 
 If the user redirects or only partially approves, go back to Phase 3 with the correction — update `plan.md` to reflect it, don't patch the plan unilaterally in your head and re-present it as if it were already agreed.
 
-Either way, tell the user the file paths once this gate closes. Don't commit them — leave staging/committing to the user, same as any other change.
+Either way, tell the user the file paths once this gate closes. They live in the brain, gitignored by design — there's nothing to stage or commit.
 
 ---
 
@@ -102,7 +110,7 @@ Either way, tell the user the file paths once this gate closes. Don't commit the
 
 ## General rules
 
-- This skill writes exactly three kinds of files against the target repo: `specs/<feature-slug>/spec.md`, `specs/<feature-slug>/plan.md`, and its own diagram candidate files. It never touches application/source code — implementation is explicitly out of scope.
+- This skill writes exactly three kinds of files, all under `$BRAIN/<project-folder>/<feature-slug>/`: `spec.md`, `plan.md`, and its own diagram candidate files — never inside the target repo, and never touching application/source code there.
 - Don't default to `data-model.md`, `contracts/`, `research.md`, or `tasks.md` just because the broader spec-kit convention has them — only add one if this specific feature genuinely needs it, and say why.
 - If `archify` isn't listed as available, don't block the plan on it — note the gap and continue with text.
 - Every question asked in Phase 3 should be answerable in one reply — don't bundle three decisions into one question because it's faster.
