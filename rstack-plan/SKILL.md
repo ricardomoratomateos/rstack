@@ -43,6 +43,18 @@ Concrete example: asked to build a new kind of plugin, the right output of this 
 
 ## Phase 3 — Propose (negotiated, not delivered)
 
+### Locating the knowledge base
+
+The knowledge base is the `knowledge/` folder of this repo, next to the skill folders. Resolve its absolute path once, before anything else, and call it `KNOWLEDGE`:
+
+1. If the environment variable `RSTACK_KNOWLEDGE` is set, use it.
+2. Otherwise resolve it from this skill's base directory (the harness prints it when the skill loads), following symlinks: `KNOWLEDGE="$(cd -P "<this skill's base directory>/.." && pwd -P)/knowledge"`.
+3. If that folder does not exist, STOP and ask the user where `knowledge/` is. Do not continue without it, and do not substitute another set of documents.
+
+**Before the first proposal, read ALL of `KNOWLEDGE` in full — mandatory, always, no exception, same hard rule as `rstack-review` Step 1.** `find "$KNOWLEDGE" -iname "*.md"`, read every document, no filtering by whether it "sounds relevant" to this feature — a design that looks like pure CRUD is exactly the kind that quietly crosses a bounded-context or hexagonal-architecture rule without tripping any obvious keyword. Do this once per planning session, right before Phase 3 starts (not once per question, not re-read on every iteration). This exists because proposing a design, getting corrected against a principle already written down in that knowledge base, and re-proposing has happened repeatedly — reading first is what actually prevents the loop, not promising to remember next time.
+
+If the feature also has project-specific ADRs (same discovery convention as `rstack-review` Step 2: `.ai/ADR/`, `docs/adr/`, or whatever the repo's own CLAUDE.md points to), read all of those too, in full, before Phase 3's first proposal.
+
 **Do not write a complete plan document and hand it over.** Ask questions one at a time about what Phase 2 left open, and build the plan together with the user's answers. A plan assembled from a single monologue is a decision made alone with a rubber-stamp request attached — that's exactly what this skill exists to prevent.
 
 **`specs/<feature-slug>/plan.md` grows with the conversation, not after it.** After each question gets an answer, append or update the corresponding section of `plan.md` immediately — don't hold the decisions in your head until the end and write the file in one pass once everything is settled. The file at any point in the middle of Phase 3 should be an honest reflection of what's decided so far, including sections still marked open.
@@ -83,6 +95,7 @@ Either way, tell the user the file paths once this gate closes. Don't commit the
 - Treating "ok" or silence as either approval outcome in Phase 4 — neither counts.
 - Searching for existing code only after proposing a new design, instead of before — reuse has to come first or it never actually gets considered.
 - Jumping to Phase 3 or further because the request "seems simple enough" — Phase 1's confirmation gate has no size exception.
+- Proposing a design in Phase 3 before reading all of `KNOWLEDGE` (and the project's ADRs, if any) — a proposal that gets corrected against a principle you could have read first is the exact failure this step exists to prevent.
 - Holding decisions in memory and writing `spec.md`/`plan.md` in one pass at the end — the whole point is that the file tracks the conversation, not the other way around.
 
 ---
