@@ -61,7 +61,7 @@ The knowledge base is the `knowledge/` folder of this repo, next to the skill fo
 
 **Before the first proposal, read ALL of `KNOWLEDGE` in full — mandatory, always, no exception, same hard rule as `rstack-review` Step 1.** `find "$KNOWLEDGE" -iname "*.md"`, read every document, no filtering by whether it "sounds relevant" to this feature — a design that looks like pure CRUD is exactly the kind that quietly crosses a bounded-context or hexagonal-architecture rule without tripping any obvious keyword. Do this once per planning session, right before Phase 3 starts (not once per question, not re-read on every iteration). This exists because proposing a design, getting corrected against a principle already written down in that knowledge base, and re-proposing has happened repeatedly — reading first is what actually prevents the loop, not promising to remember next time.
 
-If the feature also has project-specific ADRs (same discovery convention as `rstack-review` Step 2: `.ai/ADR/`, `docs/adr/`, or whatever the repo's own CLAUDE.md points to), read all of those too, in full, before Phase 3's first proposal.
+If the feature also has project-specific ADRs (same discovery as `rstack-review` Step 2: run this repo's `hooks/list-adrs.sh .` in the target repo, plus whatever its own CLAUDE.md points to), read all of those too, in full, before Phase 3's first proposal.
 
 **Do not write a complete plan document and hand it over.** Ask questions one at a time about what Phase 2 left open, and build the plan together with the user's answers. A plan assembled from a single monologue is a decision made alone with a rubber-stamp request attached — that's exactly what this skill exists to prevent.
 

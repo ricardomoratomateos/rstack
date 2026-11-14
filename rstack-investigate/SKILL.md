@@ -1,6 +1,7 @@
 ---
 name: rstack-investigate
 description: Systematic root-cause debugging with hard gates against guessing. Use when asked to debug, investigate a bug, find why something fails, or before proposing any fix for a reported defect — especially from a bug report (Slack, Jira, user complaint) rather than a stack trace already in hand. Do NOT use for a simple typo/one-line fix the user already diagnosed themselves.
+effort: high
 ---
 
 # rstack-investigate
@@ -127,7 +128,7 @@ This phase is not optional, nor proportional to the size of the fix — it's as 
 
 > Given this diff/fix: [paste diff or description + touched files]
 >
-> 1. Enumerate with `find`/`ls` ALL ADR files in the repo (look under `docs/adr/`, `doc/adr/`, `adr/`, or wherever the project's CLAUDE.md points). Count the total.
+> 1. Enumerate ALL ADR files in the repo by running `{KNOWLEDGE}/../hooks/list-adrs.sh .` (tracked files only; `adr/`, `adrs/`, `decisions/` folders, case-insensitive), plus wherever the project's CLAUDE.md points. Count the total.
 > 2. Enumerate ALL documents under `{KNOWLEDGE}` (substitute the absolute path you resolved; use its `README.md` as an index, but verify with `find` that the index isn't stale). Count the total.
 > 3. Read every one of both sets **in full, one by one** — do not sample, do not read only "the ones that sound relevant by title."
 > 4. For each one, state explicitly whether the proposed fix complies with it, contradicts it, or doesn't apply.

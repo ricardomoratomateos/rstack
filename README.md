@@ -22,6 +22,30 @@ for s in ~/rstack/rstack-*; do
 done
 ```
 
+### Hooks (optional, recommended)
+
+Skills trigger at the model's discretion; hooks make it deterministic. Add to `~/.claude/settings.json` (adjust the path):
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "~/rstack/hooks/skill-router.sh", "timeout": 5 }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "~/rstack/hooks/adr-guard.sh", "timeout": 10 }] }
+    ]
+  }
+}
+```
+
+- `skill-router.sh` reads each prompt and tells the model which rstack skill to invoke (PR review, bug investigation, feature planning). The keyword lists in the script are English and Spanish; edit them to taste.
+- `adr-guard.sh` lists the ADRs that govern a file the first time a session edits that area. No layout is assumed: an ADR applies to everything under the directory that owns its ADR folder (the repo root for repo-wide ADRs), and to paths with a segment named like that directory (parallel test trees). Silent in repos without ADRs.
+- `list-adrs.sh` is the single ADR enumerator both the hook and the skills use.
+
+Both hooks need `jq`.
+
 Symlinks matter for `rstack-investigate` and `rstack-review`: they find `knowledge/` from the real location of their folder, one level up. `rstack-plan` and `rstack-qa-review` do not need it. If you copy the folders instead of linking them, point to the knowledge base explicitly:
 
 ```bash

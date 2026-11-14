@@ -1,6 +1,7 @@
 ---
 name: rstack-review
 description: Review a PR against Ricardo's engineering principles (the `knowledge/` folder of this repo) AND against every ADR of the current project. Use whenever the user asks to review a PR, pastes a PR URL/number, or says "review this PR", "run the review", "pr-review". Always re-reads the knowledge docs and ADRs at invocation time — they change frequently, never rely on remembered content.
+effort: high
 ---
 
 # PR Review against the knowledge base and the project's ADRs
@@ -25,7 +26,7 @@ The knowledge base is the `knowledge/` folder of this repo, next to the skill fo
 
 ## Step 2 — Enumerate and read ALL of the project's ADRs (mandatory, always, no exception)
 
-1. Look for the current repo's ADRs, trying the usual conventions — `find . -path "*/adr/*.md"`, `docs/adr/`, `doc/adr/`, `docs/decisions/` — and whatever the repo's own CLAUDE.md/README points to if it uses a different one. Count the real total (M).
+1. Enumerate the current repo's ADRs with the shared script, never with a hand-written `find`: `"$(cd -P "<this skill's base directory>/.." && pwd -P)/hooks/list-adrs.sh" .` — it lists tracked files only (so nested worktrees don't show up as duplicates) and matches `adr/`, `adrs/`, `decisions/` folders case-insensitively. Add whatever the repo's own CLAUDE.md/README points to if it uses a different convention. Count the real total (M). If nothing is found, say "ADRs: none found" explicitly in the output — never report 0/0 silently.
 2. Read every ADR **in full**, one by one — same as Step 1, with no filtering by whether the title "sounds" related to the PR. (For example, a time-zone ADR doesn't have to be mentioned in the title of a PR that touches scheduled jobs or deadlines — and that's exactly the kind that gets violated most by being skipped.)
 3. Keep the count (M) for the Step 5 output.
 
