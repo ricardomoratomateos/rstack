@@ -86,3 +86,22 @@ Redrive requires:
 5. Monitoring success, repeat failure, and business side effects.
 
 Never automatically bounce messages between the main queue and DLQ. Permanent, ambiguous, or repeated failures go to reconciliation or manual review.
+
+## 9. Failure after a point of no return
+
+**Principle**: once an irreversible step has happened (a one-time code consumed, a record written, an event published, money moved), every later step must either be safe to fail or be recoverable by the caller. A secondary step that fails must not turn the already-completed primary outcome into an error the caller cannot retry.
+
+**Why**: a single-use authorization code is deleted, the new credential is stored, and then a cleanup call throws. The caller gets a 500, holds no credential, and cannot retry because the code is gone. The system is left worse than if the cleanup had never been attempted.
+
+**How I apply it**:
+- Classify each step after the commit point as **essential** (the outcome is meaningless without it) or **best-effort** (cleanup, notification, revoking something stale).
+- Best-effort steps are caught and recorded; they do not fail the primary operation. Essential steps run *before* the point of no return, or are made retryable with a stable operation identity ([distributed-consistency.md](distributed-consistency.md) rules 1 and 7).
+- Catch the **expected** failures of that step (not found, persistence/driver errors). Never a blanket `catch (Throwable)`: it also swallows programming errors (type errors, bad wiring) and hides them as "a logged failure".
+- A failed best-effort step needs a path to eventual completion: a retry on the next occurrence, a reconciliation job, or an event handler that retries asynchronously. State which one. "It will be fixed next time" is only true if there is a next time.
+- When the best-effort step is a **security control** (revoking an old credential, closing access), its failure is a security event: log it with the identifiers an operator needs, and attach an alert or metric. A logged error nobody sees is a silent hole.
+
+**Anti-patterns**:
+- Doing cleanup inside the request that already consumed a single-use resource, with no isolation of its failures.
+- `catch (Throwable)` around a loop "so one failure doesn't stop the rest".
+- A security-relevant failure that only produces a log line.
+- A silent no-op when an expected precondition is missing (item not in the collection, empty result): either log a warning with the identifiers or fail loudly, but never let the control skip without a trace.

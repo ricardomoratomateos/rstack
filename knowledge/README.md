@@ -28,10 +28,10 @@ Import only what applies to the project. `00-manifesto.md` applies always.
 | [architecture/cqrs.md](architecture/cqrs.md) | Command/query separation, handlers, read models |
 | [architecture/event-driven.md](architecture/event-driven.md) | Domain events, decoupling via events, event content, idempotent consumers |
 | [architecture/async-workers.md](architecture/async-workers.md) | Webhook ingestion, out-of-order events, workers, jobs, ExternalReference VO, reconciliation |
-| [architecture/distributed-consistency.md](architecture/distributed-consistency.md) | Business idempotency, optimistic concurrency, distributed locks, leases, checkpoints, ambiguous outcomes |
+| [architecture/distributed-consistency.md](architecture/distributed-consistency.md) | Business idempotency, optimistic concurrency, invariants under concurrent execution, distributed locks, leases, checkpoints, ambiguous outcomes |
 | [architecture/idempotency.md](architecture/idempotency.md) | Repeat-safe writes, key anatomy, stored outcomes and replay, concurrent duplicates, threshold-triggered one-shots, failed attempts, retention, repeat tests |
 | [architecture/reliable-messaging.md](architecture/reliable-messaging.md) | Queue vs pub/sub, delivery semantics, inbox/outbox, atomic publication intent, durable consumers |
-| [architecture/resilience.md](architecture/resilience.md) | Error classification, retries, backoff, circuit breakers, bulkheads, rate limits, DLQ redrive |
+| [architecture/resilience.md](architecture/resilience.md) | Error classification, retries, backoff, circuit breakers, bulkheads, rate limits, DLQ redrive, failure after a point of no return |
 | [architecture/sagas.md](architecture/sagas.md) | Multi-transaction workflows, orchestration, choreography, compensation, irreversible actions |
 | [architecture/workflows.md](architecture/workflows.md) | Durable state machines, valid transitions, ownership, heartbeats, resumability, stale-event guards |
 | [architecture/batch-imports.md](architecture/batch-imports.md) | Large imports, canonical normalization, chunking, backpressure, partial failure, tenant isolation |
@@ -43,9 +43,9 @@ Import only what applies to the project. `00-manifesto.md` applies always.
 | [design-patterns.md](design-patterns.md) | Symptom → pattern map: builders, strategies, chains, factories, state, adapters/ACL, null object, resolvers, composite, why no singleton |
 | [domain/value-objects.md](domain/value-objects.md) | Always VOs: Amount, typed IDs, self-validation, immutability, collection VOs when the group has rules |
 | [domain/money-precision.md](domain/money-precision.md) | Round once, three precisions, rounding policy as domain, store as strings |
-| [databases/mongodb.md](databases/mongodb.md) | Index-per-query, ESR rule, fitting queries to existing indexes, explain() |
+| [databases/mongodb.md](databases/mongodb.md) | Index-per-query, ESR rule, fitting queries to existing indexes, explain(), filtering in the database instead of after loading |
 | [databases/comparisons.md](databases/comparisons.md) | Translating my MongoDB patterns to MySQL/Postgres and other engines |
-| [testing/tdd.md](testing/tdd.md) | TDD workflow, behavior over implementation, fixtures via builders |
+| [testing/tdd.md](testing/tdd.md) | TDD workflow, behavior over implementation, fixtures via builders, tests that prove the claim |
 | [testing/distributed-systems.md](testing/distributed-systems.md) | Contracts, duplicates, ordering, retries, crashes, ambiguous outcomes, partial failures |
 | [testing/architecture-tests.md](testing/architecture-tests.md) | Executable architecture rules, completeness tests, incident tests, burn-down baselines |
 

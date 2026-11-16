@@ -61,6 +61,20 @@ db.invoices.find({ tenantId: X, status: 'pending', total: { $gte: 100 } })
 
 **Why**: The engine gives no ordering guarantee among ties; this bites hardest with `$unionWith`/multi-collection reads, but applies to any paginated query.
 
+## 8. Filter in the database, not after loading it
+
+**Principle**: Never load every document of an owner/tenant and then filter in application code. A finder expresses its full predicate (owner, type, state) in the query so the database returns only what the caller needs.
+
+**Why**: the cost is invisible while the collection is small and unbounded as it grows. Records that are disabled or soft-deleted are never removed, so "all the items of this account" grows with every reconnection, every token, every retry. Each call hydrates all of them, along with their embedded history, only to keep a handful.
+
+**How I apply it**:
+- Add an intention-revealing repository finder for the real predicate (`findEnabledByAccountAndClient`), rather than `findByAccount()->filter(...)`.
+- Keep the tenant scope in the query itself ([ddd.md](../architecture/ddd.md)) and test isolation between two tenants with a real-Mongo integration test.
+- Check the new finder against rule 3: index fit and `explain()`, noting the choice in the PR if you decide not to add an index.
+- Ask for every collection that is never pruned: how big does it get for the heaviest tenant, and what does this call cost then?
+
+**Anti-patterns**: `findAllBy…()` followed by `array_filter`/`->filter()` on a path that runs per request; hydrating full aggregates (with their change history) to read one field.
+
 ## Interaction with my architecture
 
 - Repositories ([ddd.md](../architecture/ddd.md)) expose intention-revealing finders — each finder maps to a known, index-fitted query. No generic `find(filter)` passthrough: every query shape must be auditable.

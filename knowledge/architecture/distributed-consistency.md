@@ -99,7 +99,22 @@ A timeout means we did not receive a result. It does not mean the provider did n
 - Reconcile until the outcome is known, then apply the local transition exactly once.
 - If the provider offers no query or idempotency mechanism, expose the ambiguity and route it to manual review. Never invent certainty.
 
-## 8. Strong consistency is local; convergence is global
+## 8. Invariants that survive concurrent execution
+
+**Principle**: when two requests run the same operation at the same time, the end state must satisfy the invariant under **every** interleaving, not only the sequential order. If the invariant is "at least one survivor", "exactly one active", or "the newest wins", prove it against the worst interleaving.
+
+**Why**: "disable every other item except the one I just created" looks correct sequentially. Run two in parallel (A creates, B creates, A reads, B reads) and each disables the other's item: nothing is left active. Excluding *yourself* is not a convergent rule; it only works when you are alone.
+
+**How I apply it**:
+- Define the survivor by a **total, stable order** that every participant computes the same way, not by "whichever one I am". Example: act only on items **strictly older** than the one you issued, ordered by `(createdAt, id)`. Whatever the interleaving, the newest item is never touched, so the worst case is *too many* survivors (harmless, corrected later), never *zero*.
+- Always break ties with a unique key (the id). Timestamps have limited precision (persisted milliseconds): two items created in the same instant must still compare strictly, or neither is ever acted on.
+- Prefer a failure mode that is safe and self-healing (an extra item that the next run removes) over one that is silent and permanent (everything removed, nothing left).
+- Re-state the PR/design claim honestly: "a race can leave extra items, never none" is a different promise from "exactly one", and the description must say which one the code keeps.
+- If the invariant truly needs exactly-one, use a conditional write or a unique constraint ([rule 3](#3-prevent-lost-updates-with-optimistic-concurrency), [rule 4](#4-locks-coordinate-work-they-do-not-prove-correctness)), not a read-then-write loop.
+
+**Anti-patterns**: a loop that reads a set and then acts on "everything except me"; assuming two timestamps differ; claiming exclusivity in a description while the code only guarantees a bound.
+
+## 9. Strong consistency is local; convergence is global
 
 Use strong consistency for invariants inside one aggregate and one durable transaction. Across aggregates, queues, caches, and external providers, use eventual consistency with explicit versioning, retries, reconciliation, and observable lag.
 

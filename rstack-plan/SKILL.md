@@ -63,6 +63,10 @@ The knowledge base is the `knowledge/` folder of this repo, next to the skill fo
 
 If the feature also has project-specific ADRs (same discovery as `rstack-review` Step 2: run this repo's `hooks/list-adrs.sh .` in the target repo, plus whatever its own CLAUDE.md points to), read all of those too, in full, before Phase 3's first proposal.
 
+**Also read the target repo's own conventions before the first proposal** — the same discovery as `rstack-review` Step 4, never hardcoding a folder name: the root `CLAUDE.md` / `AGENTS.md` / `CONTRIBUTING.md` / `README.md`, every doc they point to for the kind of work this feature involves (source code of the area, tests, persistence and queries, API contracts, UI), and the `CLAUDE.md` / `AGENTS.md` of each directory the work will touch (the nearest one overrides the repo-wide rule). Read them on the repo's base branch. These are the team's own rules, repeatedly enforced in review (how tests are written, how queries are shaped, what each module forbids, naming and layering); a plan that ignores them gets sent back in review exactly like one that ignores `KNOWLEDGE`. If the repo has none, say so in `plan.md`.
+
+**Stress-test every proposed design before presenting it**, the same lens `rstack-review` applies afterwards. For the flow you are proposing, answer in `plan.md` (one line each): what happens if two requests run it at the same time in any interleaving; what the caller sees and can retry if a step fails after an irreversible one; which edge cases (empty, not found, equal timestamps, a collection that grows without bound) it must handle; and which assertion will prove each promise the design makes. A design whose answer to one of these is "unknown" is not ready to propose — raise it as the next question instead.
+
 **Do not write a complete plan document and hand it over.** Ask questions one at a time about what Phase 2 left open, and build the plan together with the user's answers. A plan assembled from a single monologue is a decision made alone with a rubber-stamp request attached — that's exactly what this skill exists to prevent.
 
 **`$BRAIN/<project-folder>/<feature-slug>/plan.md` grows with the conversation, not after it.** After each question gets an answer, append or update the corresponding section of `plan.md` immediately — don't hold the decisions in your head until the end and write the file in one pass once everything is settled. The file at any point in the middle of Phase 3 should be an honest reflection of what's decided so far, including sections still marked open.
@@ -104,6 +108,7 @@ Either way, tell the user the file paths once this gate closes. They live in the
 - Searching for existing code only after proposing a new design, instead of before — reuse has to come first or it never actually gets considered.
 - Jumping to Phase 3 or further because the request "seems simple enough" — Phase 1's confirmation gate has no size exception.
 - Proposing a design in Phase 3 before reading all of `KNOWLEDGE` (and the project's ADRs, if any) — a proposal that gets corrected against a principle you could have read first is the exact failure this step exists to prevent.
+- Proposing a design without having read the target repo's own conventions, or without having stress-tested it for concurrency, error paths and edge cases — both come back later as review comments that were knowable up front.
 - Holding decisions in memory and writing `spec.md`/`plan.md` in one pass at the end — the whole point is that the file tracks the conversation, not the other way around.
 
 ---

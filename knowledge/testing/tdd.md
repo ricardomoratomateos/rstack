@@ -46,6 +46,24 @@ InvoiceMother.pending({ total: AmountMother.eur(100_00) }); // this test cares a
 
 **Corollary — coverage is a byproduct, not a goal**: chasing a coverage number produces exactly these worthless tests.
 
+## 6. Tests must prove the claim, not just pass
+
+**Principle**: For every promise the change makes ("only the previous tokens are disabled", "no event is emitted", "the newest one always survives"), there is an assertion that fails the moment that promise stops being true. Before calling a test done, mutate the code in your head: flip the condition, swap which item is kept, delete the guard. If the test still passes, it does not prove the claim.
+
+**Why**: a count says how many survived, not which one. A test that checks "one token is enabled" also passes when the wrong token is the one left enabled. Tests like this certify the shape of the outcome and miss the bug.
+
+**How I apply it**:
+- Assert **identity**, not just quantity: the surviving item is the one the last operation returned, not merely "exactly one".
+- Assert the **negative** the change promises: that an event was *not* published, that other tenants'/clients' data was *not* touched, that a collaborator was *not* called. A promise made only in the PR description and never asserted regresses silently.
+- Assert **content**, not just that something happened: a dispatched command carries the right tenant, the right flag, the right actor — those are the fields that carry the security and audit guarantees.
+- Cover the **boundary cases** the happy path hides: nothing to act on, item not found, equal timestamps or equal sort keys, first call vs. repeated call, another tenant's data in the same collection.
+- Cover **both branches** of every capability check (`supports()`-style predicates): the positive and the excluded cases.
+
+**Anti-patterns**:
+- Asserting only a count where identity matters.
+- A scenario whose title claims a guarantee that no assertion in it checks.
+- Verifying only the ids a collaborator received while ignoring the rest of what it received.
+
 ## What gets tested, priority order
 
 1. Domain invariants and VO validation (cheapest, highest value).
